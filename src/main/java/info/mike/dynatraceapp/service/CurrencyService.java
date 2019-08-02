@@ -4,11 +4,15 @@ import info.mike.dynatraceapp.model.Rate;
 import info.mike.dynatraceapp.repository.CurrencyEntity;
 import info.mike.dynatraceapp.repository.persistence.CurrencyRepository;
 import info.mike.dynatraceapp.web.transfer.CurrencyResponse;
+import info.mike.dynatraceapp.web.transfer.MidEntry;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+import reactor.scheduler.forkjoin.ForkJoinPoolScheduler;
 
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,30 +27,23 @@ public class CurrencyService {
     public Mono<CurrencyResponse> prepareResponse(String code) {
         return currencyRepository
             .findFirst1ByCodeOrderByDateDesc(code)
-            .map(currencyEntity -> new CurrencyResponse(getMidMap(currencyEntity), countStdDev(currencyEntity),
+            .map(currencyEntity -> new CurrencyResponse(getMidList(currencyEntity), countStdDev(currencyEntity),
                 countAverage(currencyEntity)));
     }
 
-    public Map<String, Double> getMidMap(CurrencyEntity currencyEntity) {
+    public List<MidEntry> getMidList(CurrencyEntity currencyEntity) {
         return currencyEntity
             .getRates()
             .stream()
-            .collect(Collectors.toMap(Rate::getEffectiveDate, Rate::getMid));
-
-//        Mono<Map<String, Double>> usd = currencyRepository
-//            .findFirst1ByCodeOrderByDateDesc("USD")
-//            .flatMapIterable(CurrencyEntity::getRates)
-//            .collectMap(Rate::getEffectiveDate, Rate::getMid);
-//
-//        return Mono.empty();
+            .map(rate -> new MidEntry(rate.getEffectiveDate(), rate.getMid()))
+            .collect(Collectors.toList());
     }
 
     public Double countAverage(CurrencyEntity currencyEntity) {
-        Double collect = currencyEntity
+        return currencyEntity
             .getRates()
             .stream()
             .collect(Collectors.averagingDouble(Rate::getMid));
-        return collect;
     }
 
     public Double countStdDev(CurrencyEntity currencyEntity) {

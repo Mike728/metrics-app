@@ -1,26 +1,24 @@
 package info.mike.dynatraceapp.web.transfer;
 
-import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.List;
-import java.util.Map;
 
 public class CurrencyResponse {
 
-    private Map<String, Double> mid;
+    private List<MidEntry> midEntries;
     private Double stdDev;
     private Double average;
 
     public CurrencyResponse() {
     }
 
-    public CurrencyResponse(Map<String, Double> mid, Double stdDev, Double average) {
-        this.mid = mid;
+    public CurrencyResponse(List<MidEntry> midEntries, Double stdDev, Double average) {
+        this.midEntries = midEntries;
         this.stdDev = stdDev;
         this.average = average;
     }
 
-    public Map<String, Double> getMid() {
-        return mid;
+    public List<MidEntry> getMidEntries() {
+        return midEntries;
     }
 
     public Double getStdDev() {
