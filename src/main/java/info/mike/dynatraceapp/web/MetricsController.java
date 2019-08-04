@@ -2,7 +2,6 @@ package info.mike.dynatraceapp.web;
 
 import info.mike.dynatraceapp.service.MetricsService;
 import info.mike.dynatraceapp.web.transfer.MetricsResponse;
-import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

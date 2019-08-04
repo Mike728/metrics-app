@@ -7,12 +7,8 @@ import info.mike.dynatraceapp.web.transfer.CurrencyResponse;
 import info.mike.dynatraceapp.web.transfer.MidEntry;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-import reactor.scheduler.forkjoin.ForkJoinPoolScheduler;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +27,7 @@ public class CurrencyService {
                 countAverage(currencyEntity)));
     }
 
-    public List<MidEntry> getMidList(CurrencyEntity currencyEntity) {
+    private List<MidEntry> getMidList(CurrencyEntity currencyEntity) {
         return currencyEntity
             .getRates()
             .stream()
@@ -39,14 +35,14 @@ public class CurrencyService {
             .collect(Collectors.toList());
     }
 
-    public Double countAverage(CurrencyEntity currencyEntity) {
+    private Double countAverage(CurrencyEntity currencyEntity) {
         return currencyEntity
             .getRates()
             .stream()
             .collect(Collectors.averagingDouble(Rate::getMid));
     }
 
-    public Double countStdDev(CurrencyEntity currencyEntity) {
+    private Double countStdDev(CurrencyEntity currencyEntity) {
         double temp = 0;
         List<Double> collect = currencyEntity
             .getRates()

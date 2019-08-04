@@ -19,6 +19,6 @@ public class WebClientConfiguration {
 
     @Bean
     public MongoClientOptions mongoOptions() {
-        return MongoClientOptions.builder().connectionsPerHost(5).build();
+        return MongoClientOptions.builder().connectionsPerHost(3).build();
     }
 }

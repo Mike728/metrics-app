@@ -6,11 +6,13 @@ public class MetricsResponse {
 
     private String name;
     private String description;
+    private String unit;
     private List<MetricEntry> metricEntries;
 
-    public MetricsResponse(String name, String description , List<MetricEntry> metricEntries) {
+    public MetricsResponse(String name, String description, String unit, List<MetricEntry> metricEntries) {
         this.name = name;
         this.description = description;
+        this.unit = unit;
         this.metricEntries = metricEntries;
     }
 
@@ -20,6 +22,10 @@ public class MetricsResponse {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
     public List<MetricEntry> getMetricEntries() {

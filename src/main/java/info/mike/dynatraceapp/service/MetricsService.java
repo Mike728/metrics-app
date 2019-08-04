@@ -5,26 +5,20 @@ import info.mike.dynatraceapp.repository.persistence.MetricsRepository;
 import info.mike.dynatraceapp.utils.StringUtils;
 import info.mike.dynatraceapp.web.transfer.MetricEntry;
 import info.mike.dynatraceapp.web.transfer.MetricsResponse;
-import io.micrometer.core.instrument.Tags;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.scheduler.forkjoin.ForkJoinPoolScheduler;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class MetricsService implements ApplicationListener<ContextRefreshedEvent> {
@@ -53,12 +47,17 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
                     .collectList()
                     .map(metricList -> new MetricsResponse(StringUtils.dotSeparatedToCapitalized(metricList.get(0).getName()),
                         metricList.get(0).getDescription(),
+                        metricList.get(0).getUnit(),
                         mapMetricsListToEntries(metricList)));
-            }).sort(Comparator.comparing(MetricsResponse::getDescription));
+            }).sort(Comparator.comparing(MetricsResponse::getName));
     }
 
-    private String convert(String text) {
-        return text;
+    private Flux<MetricEntity> insertAllMetricsToDatabase() {
+        return Flux.fromIterable(metricsNames)
+            .map(metricName -> metricsEndpoint.metric(metricName, Arrays.asList()))
+            .map(metric -> new MetricEntity(metric.getName(), metric.getDescription(),
+                metric.getBaseUnit(), metric.getMeasurements().get(0).getValue()))
+            .flatMap(metricsRepository::save);
     }
 
     private List<MetricEntry> mapMetricsListToEntries(List<MetricEntity> list) {
@@ -74,13 +73,5 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
             .stream()
             .map(MetricEntity::getValue)
             .collect(Collectors.toList());
-    }
-
-    private Flux<MetricEntity> insertAllMetricsToDatabase() {
-        return Flux.fromIterable(metricsNames)
-            .map(metricName -> metricsEndpoint.metric(metricName, Arrays.asList()))
-            .map(metric -> new MetricEntity(metric.getName(), metric.getDescription(),
-                metric.getBaseUnit(), metric.getMeasurements().get(0).getValue()))
-            .flatMap(metricsRepository::save);
     }
 }
