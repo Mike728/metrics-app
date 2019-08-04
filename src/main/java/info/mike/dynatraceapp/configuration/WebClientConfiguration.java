@@ -16,9 +16,4 @@ public class WebClientConfiguration {
             .defaultHeader(HttpHeaders.ACCEPT, "application/json")
             .build();
     }
-
-    @Bean
-    public MongoClientOptions mongoOptions() {
-        return MongoClientOptions.builder().connectionsPerHost(3).build();
-    }
 }

@@ -5,6 +5,8 @@ import info.mike.dynatraceapp.repository.persistence.MetricsRepository;
 import info.mike.dynatraceapp.utils.StringUtils;
 import info.mike.dynatraceapp.web.transfer.MetricEntry;
 import info.mike.dynatraceapp.web.transfer.MetricsResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -24,9 +26,11 @@ import java.util.stream.Collectors;
 public class MetricsService implements ApplicationListener<ContextRefreshedEvent> {
 
     private MetricsEndpoint metricsEndpoint;
-    private MetricsRepository metricsRepository;
+    private final MetricsRepository metricsRepository;
     private final Scheduler taskScheduler;
     private final Set<String> metricsNames;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MetricsService.class);
 
     public MetricsService(MetricsEndpoint metricsEndpoint, MetricsRepository metricsRepository) {
         this.metricsEndpoint = metricsEndpoint;
@@ -37,7 +41,7 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        taskScheduler.schedulePeriodically(() -> insertAllMetricsToDatabase().subscribe(), 20, 5, TimeUnit.SECONDS);
+        taskScheduler.schedulePeriodically(() -> insertAllMetricsToDatabase().subscribe(), 20, 10, TimeUnit.SECONDS);
     }
 
     public Flux<MetricsResponse> prepareResponse() {

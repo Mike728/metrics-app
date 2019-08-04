@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class NbpApiService implements ApplicationListener<ContextRefreshedEvent> {
 
-    private WebClient webClient;
-    private CurrencyRepository currencyRepository;
+    private final WebClient webClient;
+    private final CurrencyRepository currencyRepository;
     private final Scheduler taskScheduler;
 
     private static final Logger LOG = LoggerFactory.getLogger(NbpApiService.class);
