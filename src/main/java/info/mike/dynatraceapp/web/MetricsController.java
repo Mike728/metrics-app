@@ -20,6 +20,6 @@ public class MetricsController {
 
     @GetMapping("/metrics")
     public Flux<MetricsResponse> prepareMetrics() {
-        return metricsService.prepareResponse().doOnNext(v -> System.out.println("RETURNING: " + v.getMetricEntries()));
+        return metricsService.prepareResponse();
     }
 }

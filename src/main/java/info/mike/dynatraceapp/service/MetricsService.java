@@ -2,6 +2,7 @@ package info.mike.dynatraceapp.service;
 
 import info.mike.dynatraceapp.repository.MetricEntity;
 import info.mike.dynatraceapp.repository.persistence.MetricsRepository;
+import info.mike.dynatraceapp.utils.StringUtils;
 import info.mike.dynatraceapp.web.transfer.MetricEntry;
 import info.mike.dynatraceapp.web.transfer.MetricsResponse;
 import io.micrometer.core.instrument.Tags;
@@ -42,7 +43,7 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        taskScheduler.schedulePeriodically(() -> insertAllMetricsToDatabase().subscribe(), 1, 5, TimeUnit.SECONDS);
+        taskScheduler.schedulePeriodically(() -> insertAllMetricsToDatabase().subscribe(), 20, 5, TimeUnit.SECONDS);
     }
 
     public Flux<MetricsResponse> prepareResponse() {
@@ -50,18 +51,21 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
             .flatMap(metricName -> {
                 return metricsRepository.findFirst10ByNameOrderByDateDesc(metricName)
                     .collectList()
-                    .map(metricList -> new MetricsResponse(metricList.get(0).getName(), metricList.get(0).getDescription(),
+                    .map(metricList -> new MetricsResponse(StringUtils.dotSeparatedToCapitalized(metricList.get(0).getName()),
+                        metricList.get(0).getDescription(),
                         mapMetricsListToEntries(metricList)));
             }).sort(Comparator.comparing(MetricsResponse::getDescription));
+    }
+
+    private String convert(String text) {
+        return text;
     }
 
     private List<MetricEntry> mapMetricsListToEntries(List<MetricEntity> list) {
         return list
             .stream()
             .map(metricEntity -> new MetricEntry(metricEntity.getValue(), metricEntity.getDate()))
-            .peek(v -> System.out.println("Before sort: " + v))
             .sorted(Comparator.comparing(MetricEntry::getDate))
-            .peek(v -> System.out.println("After sort: " + v))
             .collect(Collectors.toList());
     }
 

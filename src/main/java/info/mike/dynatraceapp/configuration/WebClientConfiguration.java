@@ -1,5 +1,6 @@
 package info.mike.dynatraceapp.configuration;
 
+import com.mongodb.MongoClientOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -14,5 +15,10 @@ public class WebClientConfiguration {
             .baseUrl("http://api.nbp.pl/api")
             .defaultHeader(HttpHeaders.ACCEPT, "application/json")
             .build();
+    }
+
+    @Bean
+    public MongoClientOptions mongoOptions() {
+        return MongoClientOptions.builder().connectionsPerHost(5).build();
     }
 }

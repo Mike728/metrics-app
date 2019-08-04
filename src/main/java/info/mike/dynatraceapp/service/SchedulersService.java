@@ -37,7 +37,7 @@ public class SchedulersService implements ApplicationListener<ContextRefreshedEv
         taskScheduler.schedulePeriodically(() -> {
             prepareApiRequest("EUR").subscribe();
             prepareApiRequest("USD").subscribe();
-        }, 1, 500, TimeUnit.SECONDS);
+        }, 20, 500, TimeUnit.SECONDS);
     }
 
     public Flux<CurrencyEntity> prepareApiRequest(String currencyCode) {
