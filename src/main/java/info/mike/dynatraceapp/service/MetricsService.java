@@ -49,11 +49,15 @@ public class MetricsService implements ApplicationListener<ContextRefreshedEvent
             .flatMap(metricName -> {
                 return metricsRepository.findFirst10ByNameOrderByDateDesc(metricName)
                     .collectList()
-                    .map(metricList -> new MetricsResponse(StringUtils.dotSeparatedToCapitalized(metricList.get(0).getName()),
-                        metricList.get(0).getDescription(),
-                        metricList.get(0).getUnit(),
-                        mapMetricsListToEntries(metricList)));
+                    .map(metricList -> createMetricsResponse(metricList));
             }).sort(Comparator.comparing(MetricsResponse::getName));
+    }
+
+    private MetricsResponse createMetricsResponse(List<MetricEntity> metricList) {
+        return new MetricsResponse(StringUtils.dotSeparatedToCapitalized(metricList.get(0).getName()),
+            metricList.get(0).getDescription(),
+            metricList.get(0).getUnit(),
+            mapMetricsListToEntries(metricList));
     }
 
     private Flux<MetricEntity> insertAllMetricsToDatabase() {
